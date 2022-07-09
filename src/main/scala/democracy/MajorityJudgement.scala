@@ -41,9 +41,8 @@ case class Election(description: String, candidates: Set[Candidate]):
       val bestCandidates: Map[Candidate, Seq[Grade]] = gradesPerCandidate
         .filter(p => Grade.median(p._2) == bestMedianGrade)
 
-      if bestCandidates.size == 1 then {
-        bestCandidates.head._1
-      } else
+      if bestCandidates.size == 1 then bestCandidates.head._1
+      else
 
         val bestCandidatesMinusOneMedianGrade: Map[Candidate, Seq[Grade]] =
           bestCandidates.map(p => (p._1, p._2.diff(Seq(Grade.median(p._2)))))
