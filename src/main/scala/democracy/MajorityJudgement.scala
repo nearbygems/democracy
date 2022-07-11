@@ -4,8 +4,9 @@ enum Grade:
   case Bad, Mediocre, Inadequate, Passable, Good, VeryGood, Excellent
 
 object Grade:
-  def median(grades: Seq[Grade]): Grade = grades.sortBy(grade => grade.ordinal)
-                                                .apply(grades.size / 2)
+  def median(grades: Seq[Grade]): Grade = grades
+    .sortBy(grade => grade.ordinal)
+    .apply(grades.size / 2)
 
 case class Candidate(name: String)
 
@@ -24,19 +25,17 @@ case class Election(description: String, candidates: Set[Candidate]):
     findWinner(gradesPerCandidate)
 
   def findWinner(gradesPerCandidate: Map[Candidate, Seq[Grade]]): Candidate =
-
     if gradesPerCandidate.forall((candidate, grades) => grades.isEmpty) then
 
       val candidatesSeq = gradesPerCandidate.keys.toSeq
       val randomIndex   = util.Random.between(0, candidatesSeq.size)
       candidatesSeq(randomIndex)
-
     else
 
       val bestMedianGrade: Grade = gradesPerCandidate.values
-                                                     .filter(grades => grades.nonEmpty)
-                                                     .map(grades => Grade.median(grades))
-                                                     .maxBy(grade => grade.ordinal)
+        .filter(grades => grades.nonEmpty)
+        .map(grades => Grade.median(grades))
+        .maxBy(grade => grade.ordinal)
 
       val bestCandidates: Map[Candidate, Seq[Grade]] = gradesPerCandidate
         .filter(p => Grade.median(p._2) == bestMedianGrade)
@@ -48,5 +47,3 @@ case class Election(description: String, candidates: Set[Candidate]):
           bestCandidates.map(p => (p._1, p._2.diff(Seq(Grade.median(p._2)))))
 
         findWinner(bestCandidatesMinusOneMedianGrade)
-
-

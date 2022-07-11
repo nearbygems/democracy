@@ -5,7 +5,7 @@ import munit.*
 import scala.util.Random
 import scala.util.control.NonFatal
 
-class MajorityJudgementSuite extends FunSuite :
+class MajorityJudgementSuite extends FunSuite:
 
   def randomGrade(): Grade = Grade.values(Random.nextInt(Grade.values.length))
 
@@ -13,8 +13,7 @@ class MajorityJudgementSuite extends FunSuite :
     try
       val median = Grade.median(Nil)
       fail(s"Got median value $median")
-    catch
-      case NonFatal(_) => ()
+    catch case NonFatal(_) => ()
   }
 
   test("The median of a collection with a single element should be that element") {
@@ -26,18 +25,20 @@ class MajorityJudgementSuite extends FunSuite :
   test("The median of a collection with two elements can be any of those two elements") {
     val grade1, grade2 = randomGrade()
     val median         = Grade.median(List(grade1, grade2))
-    val (min, max)     = if grade1.ordinal < grade2.ordinal then (grade1, grade2) else (grade2, grade1)
+    val (min, max) = if grade1.ordinal < grade2.ordinal then (grade1, grade2) else (grade2, grade1)
     assert(
       median.ordinal >= min.ordinal,
-      s"Median value $median should not be lower than ${ min.ordinal }",
+      s"Median value $median should not be lower than ${min.ordinal}"
     )
     assert(
       median.ordinal <= max.ordinal,
-      s"Median value $median should not be higher than ${ max.ordinal }",
+      s"Median value $median should not be higher than ${max.ordinal}"
     )
   }
 
-  test("The first (resp. second) half of a sorted collection should be lower (resp. higher) than the median grade") {
+  test(
+    "The first (resp. second) half of a sorted collection should be lower (resp. higher) than the median grade"
+  ) {
     for
       _ <- 1 to 100
       length = Random.nextInt(50) + 1
@@ -47,34 +48,36 @@ class MajorityJudgementSuite extends FunSuite :
       val sortedGrades            = grades.sortBy(_.ordinal)
       val (firstHalf, secondHalf) = sortedGrades.splitAt(length / 2)
       firstHalf.find(_.ordinal > medianGrade.ordinal).foreach { counterExample =>
-        fail(s"Found element with value ${
-          counterExample.ordinal
-        } in the first half of the collection. This element has a higher value than the median $medianGrade.")
+        fail(
+          s"Found element with value ${counterExample.ordinal} in the first half of the collection. This element has a higher value than the median $medianGrade."
+        )
       }
       secondHalf.find(_.ordinal < medianGrade.ordinal).foreach { counterExample =>
-        fail(s"Found element with value ${
-          counterExample.ordinal
-        } in the second half of the collection. This element has a lower value than the median $medianGrade.")
+        fail(
+          s"Found element with value ${counterExample.ordinal} in the second half of the collection. This element has a lower value than the median $medianGrade."
+        )
       }
   }
 
   test("A median value minimizes the arithmetic mean of the absolute deviations of a collection") {
     for
       _ <- 1 to 100
-      length = Random.nextInt(50) + 1
-      grades = List.fill(length)(randomGrade())
-      median = Grade.median(grades)
+      length       = Random.nextInt(50) + 1
+      grades       = List.fill(length)(randomGrade())
+      median       = Grade.median(grades)
       medianErrors = grades.map(value => math.abs(median.ordinal - value.ordinal)).sum
-      x = Random.nextDouble() * 6
-      xErrors = grades.map(value => math.abs(x - value.ordinal)).sum
+      x            = Random.nextDouble() * 6
+      xErrors      = grades.map(value => math.abs(x - value.ordinal)).sum
     do
       assert(
         medianErrors <= xErrors + 0.001,
-        s"Found a value $x that has lower absolute deviations than the median ${ median.ordinal }."
+        s"Found a value $x that has lower absolute deviations than the median ${median.ordinal}."
       )
   }
 
-  test("The winner is the candidate that received an absolute majority of the highest grades given by all the voters") {
+  test(
+    "The winner is the candidate that received an absolute majority of the highest grades given by all the voters"
+  ) {
     val candidate1 = Candidate("Candidate 1")
     val candidate2 = Candidate("Candidate 2")
     val candidate3 = Candidate("Candidate 3")
@@ -89,14 +92,14 @@ class MajorityJudgementSuite extends FunSuite :
     for
       _ <- 1 to 100
       ballots = Seq.fill(voters)(randomBallot())
-      winner = election.elect(ballots)
+      winner  = election.elect(ballots)
       loosers = candidates.filter(_ != winner)
     do
       val candidateMedians =
         candidates.map { candidate =>
           candidate -> Grade.median(ballots.map(_.grades(candidate)))
         }.toMap
-      val highestMedian    = candidateMedians.values.maxBy(_.ordinal)
+      val highestMedian = candidateMedians.values.maxBy(_.ordinal)
       assert(
         loosers.forall(candidate => candidateMedians(candidate).ordinal <= highestMedian.ordinal)
       )
@@ -111,25 +114,25 @@ class MajorityJudgementSuite extends FunSuite :
 
     val ballot1 = Ballot(
       Map(
-        tiramisu -> Grade.Excellent,
+        tiramisu    -> Grade.Excellent,
         cremeBrulee -> Grade.Good,
-        cheesecake -> Grade.Inadequate
+        cheesecake  -> Grade.Inadequate
       )
     )
 
     val ballot2 = Ballot(
       Map(
-        tiramisu -> Grade.Excellent,
+        tiramisu    -> Grade.Excellent,
         cremeBrulee -> Grade.Passable,
-        cheesecake -> Grade.Good
+        cheesecake  -> Grade.Good
       )
     )
 
     val ballot3 = Ballot(
       Map(
-        tiramisu -> Grade.VeryGood,
+        tiramisu    -> Grade.VeryGood,
         cremeBrulee -> Grade.Inadequate,
-        cheesecake -> Grade.Good
+        cheesecake  -> Grade.Good
       )
     )
 
@@ -139,11 +142,11 @@ class MajorityJudgementSuite extends FunSuite :
   }
 
   test("full scenario with a tie-break") {
-    val karting     = Candidate("Karting")
-    val sailing     = Candidate("Sailing")
-    val hiking      = Candidate("Hiking")
-    val cooking     = Candidate("Cooking")
-    val election    = Election(
+    val karting = Candidate("Karting")
+    val sailing = Candidate("Sailing")
+    val hiking  = Candidate("Hiking")
+    val cooking = Candidate("Cooking")
+    val election = Election(
       "Team Building Activity",
       Set(karting, sailing, hiking, cooking)
     )
@@ -151,7 +154,7 @@ class MajorityJudgementSuite extends FunSuite :
       Map(
         karting -> Grade.Good,
         sailing -> Grade.Excellent,
-        hiking -> Grade.VeryGood,
+        hiking  -> Grade.VeryGood,
         cooking -> Grade.VeryGood
       )
     )
@@ -160,7 +163,7 @@ class MajorityJudgementSuite extends FunSuite :
       Map(
         karting -> Grade.VeryGood,
         sailing -> Grade.VeryGood,
-        hiking -> Grade.VeryGood,
+        hiking  -> Grade.VeryGood,
         cooking -> Grade.Excellent
       )
     )
@@ -169,7 +172,7 @@ class MajorityJudgementSuite extends FunSuite :
       Map(
         karting -> Grade.Passable,
         sailing -> Grade.Mediocre,
-        hiking -> Grade.Good,
+        hiking  -> Grade.Good,
         cooking -> Grade.Good
       )
     )
@@ -179,11 +182,11 @@ class MajorityJudgementSuite extends FunSuite :
   }
 
   test("full scenario with a tie-break and the same grades for cooking and hiking") {
-    val karting     = Candidate("Karting")
-    val sailing     = Candidate("Sailing")
-    val hiking      = Candidate("Hiking")
-    val cooking     = Candidate("Cooking")
-    val election    = Election(
+    val karting = Candidate("Karting")
+    val sailing = Candidate("Sailing")
+    val hiking  = Candidate("Hiking")
+    val cooking = Candidate("Cooking")
+    val election = Election(
       "Team Building Activity",
       Set(karting, sailing, hiking, cooking)
     )
@@ -191,7 +194,7 @@ class MajorityJudgementSuite extends FunSuite :
       Map(
         karting -> Grade.Good,
         sailing -> Grade.Excellent,
-        hiking -> Grade.VeryGood,
+        hiking  -> Grade.VeryGood,
         cooking -> Grade.VeryGood
       )
     )
@@ -200,7 +203,7 @@ class MajorityJudgementSuite extends FunSuite :
       Map(
         karting -> Grade.VeryGood,
         sailing -> Grade.VeryGood,
-        hiking -> Grade.Excellent,
+        hiking  -> Grade.Excellent,
         cooking -> Grade.Excellent
       )
     )
@@ -209,7 +212,7 @@ class MajorityJudgementSuite extends FunSuite :
       Map(
         karting -> Grade.Passable,
         sailing -> Grade.Mediocre,
-        hiking -> Grade.Good,
+        hiking  -> Grade.Good,
         cooking -> Grade.Good
       )
     )
